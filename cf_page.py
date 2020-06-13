@@ -18,10 +18,24 @@ CurrentSubmitUrl = None
 CurrentSubmitWindow = None
 CurrentContestWindow = None
 
+
+# A decorator for returning to the current tab
+def stay_in_tab(func):
+	def wrapper(*args, **kwargs):
+		currentWindow = Browser.current_window_handle
+		ret = func(*args, **kwargs)
+		Browser.switch_to.window(currentWindow)
+		return ret
+	return wrapper
+
+
 def initBrowser():
 	global Browser
 	Browser = webdriver.Chrome()
 	Browser.get(MainPageUrl)
+
+
+# AUTHORISATION AT CODEFORCCES.COM
 
 def getCredentials():
 	handleField = None
@@ -84,6 +98,8 @@ def login(fromMainPage = False):
 		loggedIn = getCredentials()
 
 
+# ENTERING THE CONTEST
+
 def setContestUrls(constestId, contestType = "contest"):
 	global CurrentContestUrl, CurrentSubmitUrl
 	CurrentContestUrl = "{}/{}/{}".format(MainPageUrl, contestType, constestId)
@@ -98,15 +114,18 @@ def gotoContestPage(contestId = -1, contestType = "contest"):
 	Browser.get(CurrentContestUrl)
 	CurrentContestWindow = Browser.current_window_handle
 
+
+# SUBMITTING SOLUTIONS
+
 #opens the submission page in the background
+#@stay_in_tab
 def openSubmitPage():
 	global CurrentSubmitWindow
-	currentWindow = Browser.current_window_handle
+
 	Browser.execute_script("window.open('{}');".format(CurrentSubmitUrl))
 	Browser.switch_to.window(Browser.window_handles[-1])
 	CurrentSubmitWindow = Browser.current_window_handle
-	Browser.switch_to.window(currentWindow)
-
+	
 #set the most suitable language
 def setSubmittedLang(form, lang):
 	options = form.find_elements_by_tag_name('option')
@@ -138,6 +157,7 @@ def setSubmittedLang(form, lang):
 	
 	return True
 
+# finds the submitted
 def setSubmittedId(form, problemId):
 	options = form.find_elements_by_tag_name('option')
 
@@ -150,7 +170,8 @@ def setSubmittedId(form, problemId):
 	DBG.printerr("Didn't find this problem in the contest")
 	return False
 
-def submitSolution(problemId, sourceFile, lang)
+#@stay_in_tab
+def submitSolution(problemId, sourceFile, lang):
 
 	Browser.switch_to.window(CurrentSubmitWindow)
 
@@ -189,15 +210,51 @@ def submitSolution(problemId, sourceFile, lang)
 	return True
 
 
+# OPENING STATEMENTS
+
+def openProblemPage(problemId, background, getSamples):
+	if background:
+		currentWindow = Browser.current_window_handle
+
+	problemUrl = "{}/problem/{}".format(CurrentContestUrl, problemId)
+	Browser.execute_script("window.open('{}');".format(problemUrl))
+	Browser.switch_to.window(Browser.window_handles[-1])
+
+	if getSamples:
+		sampleSection = Browser.find_element_by_xpath('//div[@class="sample-tests"]')
+		inputs = sampleSection.find_elements_by_xpath('//div[@class="input"]')
+		outputs = sampleSection.find_elements_by_xpath('//div[@class="output"]')
+
+		sampleInputs = []
+		sampleOutputs = []
+
+		for sampleIn in inputs:
+			field = sampleIn.find_element_by_tag_name('pre')
+			sampleInputs.append(field.text)
+		
+		for sampleOut in outputs:
+			field = sampleOut.find_element_by_tag_name('pre')
+			sampleOutputs.append(field.text)
+
+
+	if getSamples:
+		return [sampleInputs, sampleOutputs]
+
+	if background:
+		Browser.switch_to.window(currentWindow)
+
 def giveBrowser():
 	return Browser
 
 
 def testingRoutine():
 	initBrowser()
-	login()
-	gotoContestPage(102599, "gym")
-	openSubmitPage()
+	#login()
+	gotoContestPage(1349)
+
+	#openSubmitPage()
+	#submitSolution("A", solution, "c")
+
 
 
 if __name__ == "__main__":
