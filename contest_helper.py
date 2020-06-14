@@ -3,12 +3,12 @@ import requests
 import debugtools as DBG
 import cf_page as cf
 
-# Contest_helper has the following functionalities:
+# Contest_helper will have the following functionalities:
 # * Finding a contest that is about to start
-# * Opening statements in browser
-# *	Downloading sample tests (by automating browser)
-# * Submitting solutions (by automating browser)
-# * Reporing vertict of a submission
+# * Opening statements in browser [partially implemented]
+# *	Downloading sample tests (by automating browser) [partially implemented]
+# * Submitting solutions (by automating browser) [partially implemented]
+# * Reporing vertict of a submission [not implemented]
 
 class  BrowserSession:
 

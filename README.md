@@ -1,2 +1,2 @@
 # contest-helper
-a commandline tool for taking part in competetive programming contests
+A simple commandline tool for facilitating the participation in contest on codeforces.com. It enables submitting solutions,  opening statements in browser and downloading the sample tests from terminal.
